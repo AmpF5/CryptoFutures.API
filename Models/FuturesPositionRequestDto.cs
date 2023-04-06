@@ -1,3 +1,5 @@
+using CryptoFutures.API.Enums;
+
 namespace CryptoFutures.API.Models;
 
 public class FuturesPositionRequestDto
