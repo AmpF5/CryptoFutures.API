@@ -5,7 +5,7 @@ namespace CryptoFutures.API.Services;
 
 public interface IFuturesPositionService
 {
-    public FuturesPosition OpenPosition(FuturesPositionRequestDto requestDto);
+    public FuturesPosition OpenPosition(HttpContext httpContext, FuturesPositionRequestDto requestDto);
     public FuturesPositionResponseDto GetPosition();
     public FuturesPositionResponseDto UpdateStopLoss(int id, decimal stopLoss);
     public FuturesPositionRequestDto UpdateTakeProfit(int id, decimal takeProfit);

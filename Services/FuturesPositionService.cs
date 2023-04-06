@@ -15,9 +15,22 @@ public class FuturesPositionService : IFuturesPositionService
         _mapper = mapper;
         _cookieService = cookieService;
     }
-    public FuturesPosition OpenPosition(FuturesPositionRequestDto requestDto)
+    public FuturesPosition OpenPosition(HttpContext httpContext, FuturesPositionRequestDto requestDto)
     {
         var position = _mapper.Map<Entities.FuturesPosition>(requestDto);
+        var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
+        List<FuturesPosition> positions;
+        if(positionsFromCookie == null)
+        {
+        positions = new();
+        }
+        else
+        {
+        positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
+        }
+        positions.Add(position);
+        var serializedPositions = JsonConvert.SerializeObject(positions);
+        _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
         return position;
     }
 

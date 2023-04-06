@@ -23,20 +23,21 @@ public class FuturesPositionController : Controller
   public IActionResult OpenPosition([FromBody] FuturesPositionRequestDto requestDto)
   {
     if(!ModelState.IsValid) return BadRequest(ModelState);
-    var positionsFromCookie = _cookieService.GetCookie(HttpContext, "FuturesPositions");
-    List<FuturesPosition> positions;
-    if(positionsFromCookie == null)
-    {
-      positions = new();
-    }
-    else
-    {
-      positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
-    }
-    var position =_futuresPositionService.OpenPosition(requestDto);
-    positions.Add(position);
-    var serializedPositions = JsonConvert.SerializeObject(positions);
-    _cookieService.SetCookie(HttpContext, "FuturesPositions", serializedPositions, 7);
+    // var positionsFromCookie = _cookieService.GetCookie(HttpContext, "FuturesPositions");
+    // List<FuturesPosition> positions;
+    // if(positionsFromCookie == null)
+    // {
+    //   positions = new();
+    // }
+    // else
+    // {
+    //   positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
+    // }
+    // var position =_futuresPositionService.OpenPosition(requestDto);
+    // positions.Add(position);
+    // var serializedPositions = JsonConvert.SerializeObject(positions);
+    // _cookieService.SetCookie(HttpContext, "FuturesPositions", serializedPositions, 7);
+    var position = _futuresPositionService.OpenPosition(HttpContext, requestDto);
     return Ok(position);
   }
 
