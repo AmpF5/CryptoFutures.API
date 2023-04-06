@@ -35,4 +35,9 @@ public class FuturesPositionService : IFuturesPositionService
     {
         throw new NotImplementedException();
     }
+
+    public FuturesPositionResponseDto GetPosition()
+    {
+        throw new NotImplementedException();
+    }
 }
