@@ -1,5 +1,6 @@
+namespace CryptoFutures.API.Enums;
 public enum OrderType
 {
-    Long = 1,
-    Short = 2,
+  Short,
+  Long,
 }
