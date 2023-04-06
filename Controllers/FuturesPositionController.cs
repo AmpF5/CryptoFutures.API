@@ -20,7 +20,7 @@ public class FuturesPositionController : Controller
   }
 
   [HttpPost]
-  public IActionResult OpenPosition([FromBody] FuturesPositionRequestDto requestDto)
+  public async Task<IActionResult> OpenPosition([FromBody] FuturesPositionRequestDto requestDto)
   {
     if(!ModelState.IsValid) return BadRequest(ModelState);
     // var positionsFromCookie = _cookieService.GetCookie(HttpContext, "FuturesPositions");
@@ -37,7 +37,7 @@ public class FuturesPositionController : Controller
     // positions.Add(position);
     // var serializedPositions = JsonConvert.SerializeObject(positions);
     // _cookieService.SetCookie(HttpContext, "FuturesPositions", serializedPositions, 7);
-    var position = _futuresPositionService.OpenPosition(HttpContext, requestDto);
+    var position = await _futuresPositionService.OpenPosition(HttpContext, requestDto);
     return Ok(position);
   }
 
