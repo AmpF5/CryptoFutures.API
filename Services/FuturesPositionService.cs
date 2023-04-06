@@ -1,4 +1,5 @@
 
+using System.Reflection.Metadata.Ecma335;
 using AutoMapper;
 using CryptoFutures.API.Entities;
 using CryptoFutures.API.Models;
@@ -19,8 +20,8 @@ public class FuturesPositionService : IFuturesPositionService
     }
     public async Task<FuturesPosition> OpenPosition(HttpContext httpContext, FuturesPositionRequestDto requestDto)
     {
-        var position = _mapper.Map<Entities.FuturesPosition>(requestDto);
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
+        var position = _mapper.Map<Entities.FuturesPosition>(requestDto);
         List<FuturesPosition> positions;
         if(positionsFromCookie == null)
         {
@@ -32,15 +33,26 @@ public class FuturesPositionService : IFuturesPositionService
         position.Id = positions.Count;
         }
         position.Price = await GetExternalPairPriceAsync();
+        position.Total = position.Price * position.Quanity;
         positions.Add(position);
         var serializedPositions = JsonConvert.SerializeObject(positions);
         _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
         return position;
     }
 
-    public FuturesPositionRequestDto ClosePosition(int id)
+    public FuturesPositionResponseDto ClosePosition(HttpContext httpContext, int id)
     {
-        throw new NotImplementedException();
+        var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
+        if(positionsFromCookie == null) return null;
+        var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
+        if(positions == null || positions.Count == 0) return null;
+        // FIXME: - now its checking id by position in list but if u delete middle positon the order gonna chage
+        // fix it so its checking position.id instead of position in list 
+        var position = positions[id];
+        positions.RemoveAt(id);
+        var serializedPositions = JsonConvert.SerializeObject(positions);
+        _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
+        return _mapper.Map<FuturesPositionResponseDto>(position);
     }
 
     public FuturesPositionResponseDto UpdateStopLoss(int id, decimal stopLoss)
@@ -60,7 +72,7 @@ public class FuturesPositionService : IFuturesPositionService
     public async Task<decimal> GetExternalPairPriceAsync()
     {
         using var httpClient = new HttpClient();
-        var url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
+        const string url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
         var response = await httpClient.GetAsync(url);
         if(response.IsSuccessStatusCode)
         {

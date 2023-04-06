@@ -22,4 +22,9 @@ public class CookieService : ICookieService
     {
         return httpContext.Request.Cookies[key];
     }
+
+    public void RemoveCookie(HttpContext httpContext)
+    {
+        httpContext.Response.Cookies.Delete("FuturesPositions");
+    }
 }

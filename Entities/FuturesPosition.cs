@@ -7,6 +7,7 @@ public class FuturesPosition
     public string Symbol { get; set; }
     public decimal Price { get; set; }
     public decimal Quanity { get; set; }
+    public decimal Total { get; set; }
     public OrderType OrderType { get; set; }
     public DateTime Date { get; set; } = DateTime.Now;
     public int Leverage { get; set; }

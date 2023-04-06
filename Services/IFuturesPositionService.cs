@@ -9,5 +9,5 @@ public interface IFuturesPositionService
     public FuturesPositionResponseDto GetPosition();
     public FuturesPositionResponseDto UpdateStopLoss(int id, decimal stopLoss);
     public FuturesPositionRequestDto UpdateTakeProfit(int id, decimal takeProfit);
-    public FuturesPositionRequestDto ClosePosition(int id);
+    public FuturesPositionResponseDto ClosePosition(HttpContext httpcontext, int id);
 }
