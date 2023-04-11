@@ -30,11 +30,11 @@ public class FuturesPositionController : Controller
   public IActionResult ClosePosition(int positionId)
   {
     var position = _futuresPositionService.ClosePosition(HttpContext, positionId);
-    return position is null ? BadRequest(ModelState) : Ok(position);
+    return position is not null ? Ok(position) : BadRequest(ModelState);
   }
 
-  [HttpGet]
-  public IActionResult GetPosition()
+  [HttpGet("position/all")]
+  public IActionResult GetPositions()
   {
     // TODO moved it to the service
     var positionCookieValue = _cookieService.GetCookie(HttpContext, "FuturesPositions");
@@ -42,6 +42,18 @@ public class FuturesPositionController : Controller
 
     var position = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionCookieValue);
     return Ok(position);
+  }
+  [HttpGet("position/{positionId:int}")]
+  public IActionResult GetPostion([FromRoute] int positionId)
+  {
+    var positionResponseDto = _futuresPositionService.GetPosition(HttpContext, positionId);
+    return positionResponseDto is not null ? Ok(positionResponseDto) : BadRequest(ModelState);
+  }
+  [HttpPut]
+  public IActionResult UpdateStopLoss(int positionId, decimal stopLoss)
+  {
+    var position = _futuresPositionService.UpdateStopLoss(positionId, stopLoss);
+    return Ok();
   }
   [HttpDelete("/Cookies")]
   public IActionResult DeleteCookie()

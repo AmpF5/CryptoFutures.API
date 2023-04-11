@@ -25,12 +25,12 @@ public class FuturesPositionService : IFuturesPositionService
         List<FuturesPosition> positions;
         if(positionsFromCookie == null)
         {
-        positions = new();
+            positions = new();
         }
         else
         {
-        positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie) ?? new List<FuturesPosition>();
-        position.Id = positions.Count;
+            positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie) ?? new List<FuturesPosition>();
+            position.Id = positions.Count;
         }
         position.Price = await GetExternalPairPriceAsync();
         position.Total = position.Price * position.Quanity;
@@ -40,15 +40,13 @@ public class FuturesPositionService : IFuturesPositionService
         return position;
     }
 
-    public FuturesPositionResponseDto ClosePosition(HttpContext httpContext, int id)
+    public FuturesPositionResponseDto ClosePosition(HttpContext httpContext, int positionId)
     {
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
         if(positionsFromCookie == null) return null;
         var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
-        if(positions == null || positions.Count == 0    ) return null;
-        // FIXME: - now its checking id by position in list but if u delete middle positon the order gonna chage
-        // fix it so its checking position.id instead of position in list 
-        var position = positions.FirstOrDefault(i => i.Id == id);
+        if(positions == null || positions.Count == 0) return null;
+        var position = positions.FirstOrDefault(i => i.Id == positionId);
         if(position is not null) positions.Remove(position);
         var serializedPositions = JsonConvert.SerializeObject(positions);
         _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
@@ -65,9 +63,14 @@ public class FuturesPositionService : IFuturesPositionService
         throw new NotImplementedException();
     }
 
-    public FuturesPositionResponseDto GetPosition()
+    public FuturesPositionResponseDto GetPosition(HttpContext httpContext, int positionId)
     {
-        throw new NotImplementedException();
+        var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
+        if(positionsFromCookie == null) return null;
+        var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
+        if(positions == null || positions.Count == 0) return null;
+        var position = positions.FirstOrDefault(i => i.Id == positionId);
+        return _mapper.Map<FuturesPositionResponseDto>(position);
     }
     public async Task<decimal> GetExternalPairPriceAsync()
     {
