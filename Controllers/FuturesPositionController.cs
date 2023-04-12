@@ -36,11 +36,6 @@ public class FuturesPositionController : Controller
   [HttpGet("position/all")]
   public IActionResult GetPositions()
   {
-    // TODO moved it to the service
-    // var positionCookieValue = _cookieService.GetCookie(HttpContext, "FuturesPositions");
-    // if(positionCookieValue == null ) return NotFound();
-
-    // var position = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionCookieValue);
     var positions = _futuresPositionService.GetPositions(HttpContext);
     return positions is not null ? Ok(positions) : BadRequest(ModelState);
   }
