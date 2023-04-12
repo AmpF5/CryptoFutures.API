@@ -25,12 +25,12 @@ public class FuturesPositionService : IFuturesPositionService
         List<FuturesPosition> positions;
         if(positionsFromCookie == null)
         {
-        positions = new();
+            positions = new();
         }
         else
         {
-        positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie) ?? new List<FuturesPosition>();
-        position.Id = positions.Count;
+            positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie) ?? new List<FuturesPosition>();
+            position.Id = positions.Count;
         }
         position.Price = await GetExternalPairPriceAsync();
         position.Total = position.Price * position.Quanity;
@@ -40,34 +40,48 @@ public class FuturesPositionService : IFuturesPositionService
         return position;
     }
 
-    public FuturesPositionResponseDto ClosePosition(HttpContext httpContext, int id)
+    public FuturesPositionResponseDto ClosePosition(HttpContext httpContext, int positionId)
     {
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
         if(positionsFromCookie == null) return null;
         var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
         if(positions == null || positions.Count == 0) return null;
-        // FIXME: - now its checking id by position in list but if u delete middle positon the order gonna chage
-        // fix it so its checking position.id instead of position in list 
-        var position = positions[id];
-        positions.RemoveAt(id);
+        var position = positions.FirstOrDefault(i => i.Id == positionId);
+        if(position is not null) positions.Remove(position);
         var serializedPositions = JsonConvert.SerializeObject(positions);
         _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
         return _mapper.Map<FuturesPositionResponseDto>(position);
     }
 
-    public FuturesPositionResponseDto UpdateStopLoss(int id, decimal stopLoss)
+    public FuturesPosition UpdatePositionStopLossOrTakeProfit(HttpContext httpContext, int positionId, decimal stopLoss, decimal takeProfit)
     {
-        throw new NotImplementedException();
+        // var positionResponseDto = GetPosition(httpContext, positionId);
+        // // if(positionResponseDto is null) return null;
+        // var position = _mapper.Map<FuturesPosition>(positionResponseDto);
+        // // TODO: add validation for stopLoss
+        // position.StopLoss = stopLoss;
+        // //TODO: Update cookie
+        // _cookieService.SetCookie(httpContext, "FuturesPositions", S)
+        var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
+        if(positionsFromCookie == null) return null;
+        var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
+        if(positions == null || positions.Count == 0) return null;
+        var position = positions.FirstOrDefault(i => i.Id == positionId);
+        position.StopLoss = stopLoss;
+        position.TakeProfit = takeProfit;
+        var serializedPositions = JsonConvert.SerializeObject(positions);
+        _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
+        return position;
     }
 
-    public FuturesPositionRequestDto UpdateTakeProfit(int id, decimal takeProfit)
+    public FuturesPosition GetPosition(HttpContext httpContext, int positionId)
     {
-        throw new NotImplementedException();
-    }
-
-    public FuturesPositionResponseDto GetPosition()
-    {
-        throw new NotImplementedException();
+        var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
+        if(positionsFromCookie == null) return null;
+        var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
+        if(positions == null || positions.Count == 0) return null;
+        var position = positions.FirstOrDefault(i => i.Id == positionId);
+        return position;
     }
     public async Task<decimal> GetExternalPairPriceAsync()
     {
