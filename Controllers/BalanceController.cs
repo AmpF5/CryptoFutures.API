@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using CryptoFutures.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,11 +9,30 @@ namespace CryptoFutures.API.Controllers;
 public class BalanceController : Controller
 {
     private readonly IBalanceService _balanceService;
-    private readonly ICookieService _cookieService;
 
-    public BalanceController(IBalanceService balanceService, ICookieService cookieService)
+    public BalanceController(IBalanceService balanceService)
     {
         _balanceService = balanceService;
-        _cookieService = cookieService;
+    }
+
+    [HttpGet]
+    public IActionResult GetBalance()
+    {
+        var balance = _balanceService.GetBalance(HttpContext);
+        return Ok(balance);
+    }
+
+    [HttpPut]
+    public IActionResult UpdateBalance([FromQuery] [Required] decimal amount)
+    {
+        var balance = _balanceService.UpdateBalance(HttpContext, amount);
+        return Ok(balance);
+    }
+
+    [HttpPost]
+    public IActionResult SetBalance()
+    {
+        var balance = _balanceService.SetBalance(HttpContext);
+        return Ok(balance);
     }
 }

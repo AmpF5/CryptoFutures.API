@@ -75,7 +75,7 @@ public class FuturesPositionService : IFuturesPositionService
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
         if(positionsFromCookie == null ) return null;
         var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
-        return positions is null ||  positions.Count == 0 ? null : positions;
+        return positions is null || positions.Count == 0 ? null : positions;
     }
 
     public async Task<decimal> GetExternalPairPriceAsync()
