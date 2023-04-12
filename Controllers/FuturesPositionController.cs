@@ -37,11 +37,12 @@ public class FuturesPositionController : Controller
   public IActionResult GetPositions()
   {
     // TODO moved it to the service
-    var positionCookieValue = _cookieService.GetCookie(HttpContext, "FuturesPositions");
-    if(positionCookieValue == null ) return NotFound();
+    // var positionCookieValue = _cookieService.GetCookie(HttpContext, "FuturesPositions");
+    // if(positionCookieValue == null ) return NotFound();
 
-    var position = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionCookieValue);
-    return Ok(position);
+    // var position = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionCookieValue);
+    var positions = _futuresPositionService.GetPositions(HttpContext);
+    return positions is not null ? Ok(positions) : BadRequest(ModelState);
   }
   [HttpGet("position/{positionId:int}")]
   public IActionResult GetPostion([FromRoute] int positionId)
@@ -53,7 +54,7 @@ public class FuturesPositionController : Controller
   public IActionResult UpdatePositionStopLossOrTakeProfit(int positionId, [FromQuery] decimal stopLoss, [FromQuery] decimal takeProfit)
   {
     var position = _futuresPositionService.UpdatePositionStopLossOrTakeProfit(HttpContext, positionId, stopLoss, takeProfit);
-    return Ok();
+    return position is not null ? Ok(position) : BadRequest(ModelState);
   }
 
   [HttpDelete("/Cookies")]

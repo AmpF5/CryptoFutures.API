@@ -83,6 +83,14 @@ public class FuturesPositionService : IFuturesPositionService
         var position = positions.FirstOrDefault(i => i.Id == positionId);
         return position;
     }
+    public List<FuturesPosition> GetPositions(HttpContext httpContext)
+    {
+    var positionCookieValue = _cookieService.GetCookie(httpContext, "FuturesPositions");
+    if(positionCookieValue == null ) return null;
+
+    var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionCookieValue);
+    return positions;
+    }
     public async Task<decimal> GetExternalPairPriceAsync()
     {
         using var httpClient = new HttpClient();
