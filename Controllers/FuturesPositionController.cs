@@ -49,10 +49,10 @@ public class FuturesPositionController : Controller
     var positionResponseDto = _futuresPositionService.GetPosition(HttpContext, positionId);
     return positionResponseDto is not null ? Ok(positionResponseDto) : BadRequest(ModelState);
   }
-  [HttpPut]
+  [HttpPut("position/{positionId}")]
   public IActionResult UpdateStopLoss(int positionId, decimal stopLoss)
   {
-    var position = _futuresPositionService.UpdateStopLoss(positionId, stopLoss);
+    var position = _futuresPositionService.UpdateStopLoss(HttpContext, positionId, stopLoss);
     return Ok();
   }
   [HttpDelete("/Cookies")]

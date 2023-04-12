@@ -9,5 +9,6 @@ public class FuturesPositionMapper : Profile
     {
         CreateMap<Entities.FuturesPosition, FuturesPositionResponseDto>();
         CreateMap<FuturesPositionRequestDto, Entities.FuturesPosition>();
+        CreateMap<FuturesPositionResponseDto, Entities.FuturesPosition>();
     }
 }

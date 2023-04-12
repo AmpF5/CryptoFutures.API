@@ -53,24 +53,39 @@ public class FuturesPositionService : IFuturesPositionService
         return _mapper.Map<FuturesPositionResponseDto>(position);
     }
 
-    public FuturesPositionResponseDto UpdateStopLoss(int id, decimal stopLoss)
+    public FuturesPosition UpdateStopLoss(HttpContext httpContext, int positionId, decimal stopLoss)
+    {
+        // var positionResponseDto = GetPosition(httpContext, positionId);
+        // // if(positionResponseDto is null) return null;
+        // var position = _mapper.Map<FuturesPosition>(positionResponseDto);
+        // // TODO: add validation for stopLoss
+        // position.StopLoss = stopLoss;
+        // //TODO: Update cookie
+        // _cookieService.SetCookie(httpContext, "FuturesPositions", S)
+        var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
+        if(positionsFromCookie == null) return null;
+        var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
+        if(positions == null || positions.Count == 0) return null;
+        var position = positions.FirstOrDefault(i => i.Id == positionId);
+        position.StopLoss = stopLoss;
+        var serializedPositions = JsonConvert.SerializeObject(positions);
+        _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
+        return position;
+    }
+
+    public FuturesPosition UpdateTakeProfit(HttpContext httpContext, int positionId, decimal takeProfit)
     {
         throw new NotImplementedException();
     }
 
-    public FuturesPositionRequestDto UpdateTakeProfit(int id, decimal takeProfit)
-    {
-        throw new NotImplementedException();
-    }
-
-    public FuturesPositionResponseDto GetPosition(HttpContext httpContext, int positionId)
+    public FuturesPosition GetPosition(HttpContext httpContext, int positionId)
     {
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
         if(positionsFromCookie == null) return null;
         var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
         if(positions == null || positions.Count == 0) return null;
         var position = positions.FirstOrDefault(i => i.Id == positionId);
-        return _mapper.Map<FuturesPositionResponseDto>(position);
+        return position;
     }
     public async Task<decimal> GetExternalPairPriceAsync()
     {
