@@ -53,7 +53,7 @@ public class FuturesPositionService : IFuturesPositionService
         return _mapper.Map<FuturesPositionResponseDto>(position);
     }
 
-    public FuturesPosition UpdateStopLoss(HttpContext httpContext, int positionId, decimal stopLoss)
+    public FuturesPosition UpdatePositionStopLossOrTakeProfit(HttpContext httpContext, int positionId, decimal stopLoss, decimal takeProfit)
     {
         // var positionResponseDto = GetPosition(httpContext, positionId);
         // // if(positionResponseDto is null) return null;
@@ -68,14 +68,10 @@ public class FuturesPositionService : IFuturesPositionService
         if(positions == null || positions.Count == 0) return null;
         var position = positions.FirstOrDefault(i => i.Id == positionId);
         position.StopLoss = stopLoss;
+        position.TakeProfit = takeProfit;
         var serializedPositions = JsonConvert.SerializeObject(positions);
         _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
         return position;
-    }
-
-    public FuturesPosition UpdateTakeProfit(HttpContext httpContext, int positionId, decimal takeProfit)
-    {
-        throw new NotImplementedException();
     }
 
     public FuturesPosition GetPosition(HttpContext httpContext, int positionId)
