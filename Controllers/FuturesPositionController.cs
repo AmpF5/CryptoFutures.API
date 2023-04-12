@@ -26,6 +26,7 @@ public class FuturesPositionController : Controller
     var position = await _futuresPositionService.OpenPosition(HttpContext, requestDto);
     return Ok(position);
   }
+
   [HttpDelete]
   public IActionResult ClosePosition(int positionId)
   {
@@ -39,12 +40,14 @@ public class FuturesPositionController : Controller
     var positions = _futuresPositionService.GetPositions(HttpContext);
     return positions is not null ? Ok(positions) : BadRequest(ModelState);
   }
+
   [HttpGet("position/{positionId:int}")]
   public IActionResult GetPostion([FromRoute] int positionId)
   {
     var positionResponseDto = _futuresPositionService.GetPosition(HttpContext, positionId);
     return positionResponseDto is not null ? Ok(positionResponseDto) : BadRequest(ModelState);
   }
+
   [HttpPut("position/{positionId}")]
   public IActionResult UpdatePositionStopLossOrTakeProfit(int positionId, [FromQuery] decimal stopLoss, [FromQuery] decimal takeProfit)
   {

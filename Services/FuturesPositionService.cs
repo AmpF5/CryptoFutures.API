@@ -54,6 +54,8 @@ public class FuturesPositionService : IFuturesPositionService
     {
         var positions = GetPositions(httpContext);
         var position = positions.Find(i => i.Id == positionId);
+        //TODO :add validation for stopLoss and takeProfit also
+        //FIX :bug when user is not providing stopLoss or takeProfit so its assigns value to 0
         position.StopLoss = stopLoss;
         position.TakeProfit = takeProfit;
         var serializedPositions = JsonConvert.SerializeObject(positions);
@@ -67,6 +69,7 @@ public class FuturesPositionService : IFuturesPositionService
         var position = positions.Find(i => i.Id == positionId);
         return position;
     }
+
     public List<FuturesPosition> GetPositions(HttpContext httpContext)
     {
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
@@ -74,6 +77,7 @@ public class FuturesPositionService : IFuturesPositionService
         var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
         return positions is null ||  positions.Count == 0 ? null : positions;
     }
+
     public async Task<decimal> GetExternalPairPriceAsync()
     {
         using var httpClient = new HttpClient();
