@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using CryptoFutures.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace CryptoFutures.API.Controllers;
 
@@ -23,7 +23,7 @@ public class BalanceController : Controller
     }
 
     [HttpPut]
-    public IActionResult UpdateBalance([FromQuery] [Required] decimal amount)
+    public IActionResult UpdateBalance([FromQuery][Required] decimal amount)
     {
         var balance = _balanceService.UpdateBalance(HttpContext, amount);
         return Ok(balance);

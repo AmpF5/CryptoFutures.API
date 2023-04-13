@@ -1,6 +1,5 @@
-using System.Reflection;
-using AutoMapper;
 using CryptoFutures.API.Services;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
