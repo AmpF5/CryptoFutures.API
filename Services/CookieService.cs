@@ -26,5 +26,6 @@ public class CookieService : ICookieService
     public void RemoveCookie(HttpContext httpContext)
     {
         httpContext.Response.Cookies.Delete("FuturesPositions");
+        httpContext.Response.Cookies.Delete("Balance");
     }
 }

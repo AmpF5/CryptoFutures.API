@@ -12,6 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IFuturesPositionService, FuturesPositionService>();
+builder.Services.AddScoped<IBalanceService, BalanceService>();
 builder.Services.AddScoped<ICookieService, CookieService>();
 
 var app = builder.Build();
