@@ -1,6 +1,5 @@
-using System.Reflection;
-using AutoMapper;
 using CryptoFutures.API.Services;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +13,7 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IFuturesPositionService, FuturesPositionService>();
 builder.Services.AddScoped<IBalanceService, BalanceService>();
 builder.Services.AddScoped<ICookieService, CookieService>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

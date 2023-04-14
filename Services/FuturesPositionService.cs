@@ -1,9 +1,6 @@
-
-using System.Reflection.Metadata.Ecma335;
 using AutoMapper;
 using CryptoFutures.API.Entities;
 using CryptoFutures.API.Models;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -13,17 +10,22 @@ public class FuturesPositionService : IFuturesPositionService
 {
     private readonly IMapper _mapper;
     private readonly ICookieService _cookieService;
-    public FuturesPositionService(IMapper mapper, ICookieService cookieService)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public FuturesPositionService(IMapper mapper, ICookieService cookieService, IHttpContextAccessor httpContextAccessor)
     {
         _mapper = mapper;
         _cookieService = cookieService;
+        _httpContextAccessor = httpContextAccessor;
     }
-    public async Task<FuturesPosition> OpenPosition(HttpContext httpContext, FuturesPositionRequestDto requestDto)
+
+    public async Task<FuturesPosition> OpenPosition(FuturesPositionRequestDto requestDto)
     {
+        var httpContext = _httpContextAccessor.HttpContext;
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
-        var position = _mapper.Map<Entities.FuturesPosition>(requestDto);
+        var position = _mapper.Map<FuturesPosition>(requestDto);
         List<FuturesPosition> positions;
-        if(positionsFromCookie == null)
+        if (positionsFromCookie == null)
         {
             positions = new();
         }
@@ -40,19 +42,21 @@ public class FuturesPositionService : IFuturesPositionService
         return position;
     }
 
-    public FuturesPositionResponseDto ClosePosition(HttpContext httpContext, int positionId)
+    public FuturesPositionResponseDto ClosePosition(int positionId)
     {
-        var positions = GetPositions(httpContext);
+        var httpContext = _httpContextAccessor.HttpContext;
+        var positions = GetPositions();
         var position = positions.Find(i => i.Id == positionId);
-        if(position is not null) positions.Remove(position);
+        if (position is not null) positions.Remove(position);
         var serializedPositions = JsonConvert.SerializeObject(positions);
         _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
         return _mapper.Map<FuturesPositionResponseDto>(position);
     }
 
-    public FuturesPosition UpdatePositionStopLossOrTakeProfit(HttpContext httpContext, int positionId, decimal stopLoss, decimal takeProfit)
+    public FuturesPosition UpdatePositionStopLossOrTakeProfit(int positionId, decimal stopLoss, decimal takeProfit)
     {
-        var positions = GetPositions(httpContext);
+        var httpContext = _httpContextAccessor.HttpContext;
+        var positions = GetPositions();
         var position = positions.Find(i => i.Id == positionId);
         //TODO :add validation for stopLoss and takeProfit also
         //FIX :bug when user is not providing stopLoss or takeProfit so its assigns value to 0
@@ -66,16 +70,17 @@ public class FuturesPositionService : IFuturesPositionService
         return position;
     }
 
-    public FuturesPosition GetPosition(HttpContext httpContext, int positionId)
+    public FuturesPosition GetPosition(int positionId)
     {
-        var positions = GetPositions(httpContext);
+        var positions = GetPositions();
         return positions.Find(i => i.Id == positionId);
     }
 
-    public List<FuturesPosition> GetPositions(HttpContext httpContext)
+    public List<FuturesPosition> GetPositions()
     {
+        var httpContext = _httpContextAccessor.HttpContext;
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
-        if(positionsFromCookie == null ) return null;
+        if (positionsFromCookie == null) return null;
         var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);
         return positions;
     }
@@ -85,11 +90,11 @@ public class FuturesPositionService : IFuturesPositionService
         using var httpClient = new HttpClient();
         const string url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
         var response = await httpClient.GetAsync(url);
-        if(response.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode)
         {
             var data = await response.Content.ReadAsStringAsync();
             var jsonObject = JObject.Parse(data);
-            return(decimal)jsonObject["bitcoin"]["usd"];
+            return (decimal)jsonObject["bitcoin"]["usd"];
         }
         else
         {

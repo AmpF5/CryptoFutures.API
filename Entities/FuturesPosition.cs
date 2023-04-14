@@ -1,6 +1,7 @@
 using CryptoFutures.API.Enums;
 
 namespace CryptoFutures.API.Entities;
+
 public class FuturesPosition
 {
     public int Id { get; set; }

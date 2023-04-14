@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-
 namespace CryptoFutures.API.Services;
+
 public class CookieService : ICookieService
 {
     public void SetCookie(HttpContext httpContext, string key, string value, int? expireTime)
