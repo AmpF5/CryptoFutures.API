@@ -40,7 +40,7 @@ public class FuturesPositionController : Controller
     }
 
     [HttpGet("position/{positionId:int}")]
-    public IActionResult GetPostion([FromRoute] int positionId)
+    public IActionResult GetPosition([FromRoute] int positionId)
     {
         var positionResponseDto = _futuresPositionService.GetPosition(HttpContext, positionId);
         return positionResponseDto is not null ? Ok(positionResponseDto) : BadRequest(ModelState);
