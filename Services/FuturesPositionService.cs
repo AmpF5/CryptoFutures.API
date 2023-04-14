@@ -10,17 +10,20 @@ public class FuturesPositionService : IFuturesPositionService
 {
     private readonly IMapper _mapper;
     private readonly ICookieService _cookieService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public FuturesPositionService(IMapper mapper, ICookieService cookieService)
+    public FuturesPositionService(IMapper mapper, ICookieService cookieService, IHttpContextAccessor httpContextAccessor)
     {
         _mapper = mapper;
         _cookieService = cookieService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<FuturesPosition> OpenPosition(HttpContext httpContext, FuturesPositionRequestDto requestDto)
+    public async Task<FuturesPosition> OpenPosition(FuturesPositionRequestDto requestDto)
     {
+        var httpContext = _httpContextAccessor.HttpContext;
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
-        var position = _mapper.Map<Entities.FuturesPosition>(requestDto);
+        var position = _mapper.Map<FuturesPosition>(requestDto);
         List<FuturesPosition> positions;
         if (positionsFromCookie == null)
         {
@@ -39,9 +42,10 @@ public class FuturesPositionService : IFuturesPositionService
         return position;
     }
 
-    public FuturesPositionResponseDto ClosePosition(HttpContext httpContext, int positionId)
+    public FuturesPositionResponseDto ClosePosition(int positionId)
     {
-        var positions = GetPositions(httpContext);
+        var httpContext = _httpContextAccessor.HttpContext;
+        var positions = GetPositions();
         var position = positions.Find(i => i.Id == positionId);
         if (position is not null) positions.Remove(position);
         var serializedPositions = JsonConvert.SerializeObject(positions);
@@ -49,9 +53,10 @@ public class FuturesPositionService : IFuturesPositionService
         return _mapper.Map<FuturesPositionResponseDto>(position);
     }
 
-    public FuturesPosition UpdatePositionStopLossOrTakeProfit(HttpContext httpContext, int positionId, decimal stopLoss, decimal takeProfit)
+    public FuturesPosition UpdatePositionStopLossOrTakeProfit(int positionId, decimal stopLoss, decimal takeProfit)
     {
-        var positions = GetPositions(httpContext);
+        var httpContext = _httpContextAccessor.HttpContext;
+        var positions = GetPositions();
         var position = positions.Find(i => i.Id == positionId);
         //TODO :add validation for stopLoss and takeProfit also
         //FIX :bug when user is not providing stopLoss or takeProfit so its assigns value to 0
@@ -65,14 +70,15 @@ public class FuturesPositionService : IFuturesPositionService
         return position;
     }
 
-    public FuturesPosition GetPosition(HttpContext httpContext, int positionId)
+    public FuturesPosition GetPosition(int positionId)
     {
-        var positions = GetPositions(httpContext);
+        var positions = GetPositions();
         return positions.Find(i => i.Id == positionId);
     }
 
-    public List<FuturesPosition> GetPositions(HttpContext httpContext)
+    public List<FuturesPosition> GetPositions()
     {
+        var httpContext = _httpContextAccessor.HttpContext;
         var positionsFromCookie = _cookieService.GetCookie(httpContext, "FuturesPositions");
         if (positionsFromCookie == null) return null;
         var positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie);

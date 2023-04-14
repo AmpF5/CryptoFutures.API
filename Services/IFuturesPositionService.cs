@@ -5,13 +5,13 @@ namespace CryptoFutures.API.Services;
 
 public interface IFuturesPositionService
 {
-    public Task<FuturesPosition> OpenPosition(HttpContext httpContext, FuturesPositionRequestDto requestDto);
+    public Task<FuturesPosition> OpenPosition(FuturesPositionRequestDto requestDto);
 
-    public FuturesPosition GetPosition(HttpContext httpContext, int positionId);
+    public FuturesPosition GetPosition(int positionId);
 
-    public List<FuturesPosition> GetPositions(HttpContext httpContext);
+    public List<FuturesPosition> GetPositions();
 
-    public FuturesPosition UpdatePositionStopLossOrTakeProfit(HttpContext httpContext, int positionId, decimal stopLoss, decimal takeProfit);
+    public FuturesPosition UpdatePositionStopLossOrTakeProfit(int positionId, decimal stopLoss, decimal takeProfit);
 
-    public FuturesPositionResponseDto ClosePosition(HttpContext httpcontext, int id);
+    public FuturesPositionResponseDto ClosePosition(int id);
 }

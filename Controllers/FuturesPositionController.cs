@@ -21,35 +21,35 @@ public class FuturesPositionController : Controller
     public async Task<IActionResult> OpenPosition([FromBody] FuturesPositionRequestDto requestDto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        var position = await _futuresPositionService.OpenPosition(HttpContext, requestDto);
+        var position = await _futuresPositionService.OpenPosition(requestDto);
         return Ok(position);
     }
 
     [HttpDelete]
     public IActionResult ClosePosition(int positionId)
     {
-        var position = _futuresPositionService.ClosePosition(HttpContext, positionId);
+        var position = _futuresPositionService.ClosePosition(positionId);
         return position is not null ? Ok(position) : BadRequest(ModelState);
     }
 
     [HttpGet("position/all")]
     public IActionResult GetPositions()
     {
-        var positions = _futuresPositionService.GetPositions(HttpContext);
+        var positions = _futuresPositionService.GetPositions();
         return positions is not null ? Ok(positions) : BadRequest(ModelState);
     }
 
     [HttpGet("position/{positionId:int}")]
     public IActionResult GetPosition([FromRoute] int positionId)
     {
-        var positionResponseDto = _futuresPositionService.GetPosition(HttpContext, positionId);
+        var positionResponseDto = _futuresPositionService.GetPosition(positionId);
         return positionResponseDto is not null ? Ok(positionResponseDto) : BadRequest(ModelState);
     }
 
     [HttpPut("position/{positionId}")]
     public IActionResult UpdatePositionStopLossOrTakeProfit(int positionId, [FromQuery] decimal stopLoss, [FromQuery] decimal takeProfit)
     {
-        var position = _futuresPositionService.UpdatePositionStopLossOrTakeProfit(HttpContext, positionId, stopLoss, takeProfit);
+        var position = _futuresPositionService.UpdatePositionStopLossOrTakeProfit(positionId, stopLoss, takeProfit);
         return position is not null ? Ok(position) : BadRequest(ModelState);
     }
 
