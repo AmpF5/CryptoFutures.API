@@ -2,9 +2,9 @@ namespace CryptoFutures.API.Services;
 
 public interface IBalanceService
 {
-    public decimal GetBalance(HttpContext httpContext);
+    public decimal GetBalance();
 
-    public decimal SetBalance(HttpContext httpContext);
+    public decimal SetBalance();
 
-    public decimal UpdateBalance(HttpContext httpContext, decimal amount);
+    public decimal UpdateBalance(decimal amount);
 }

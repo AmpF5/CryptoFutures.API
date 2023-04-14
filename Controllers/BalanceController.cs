@@ -18,21 +18,21 @@ public class BalanceController : Controller
     [HttpGet]
     public IActionResult GetBalance()
     {
-        var balance = _balanceService.GetBalance(HttpContext);
+        var balance = _balanceService.GetBalance();
         return Ok(balance);
     }
 
     [HttpPut]
     public IActionResult UpdateBalance([FromQuery][Required] decimal amount)
     {
-        var balance = _balanceService.UpdateBalance(HttpContext, amount);
+        var balance = _balanceService.UpdateBalance(amount);
         return Ok(balance);
     }
 
     [HttpPost]
     public IActionResult SetBalance()
     {
-        var balance = _balanceService.SetBalance(HttpContext);
+        var balance = _balanceService.SetBalance();
         return Ok(balance);
     }
 }
