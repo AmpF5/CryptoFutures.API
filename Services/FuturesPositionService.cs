@@ -11,12 +11,14 @@ public class FuturesPositionService : IFuturesPositionService
     private readonly IMapper _mapper;
     private readonly ICookieService _cookieService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IBalanceService _balanceService;
 
-    public FuturesPositionService(IMapper mapper, ICookieService cookieService, IHttpContextAccessor httpContextAccessor)
+    public FuturesPositionService(IMapper mapper, ICookieService cookieService, IHttpContextAccessor httpContextAccessor, IBalanceService balanceService)
     {
         _mapper = mapper;
         _cookieService = cookieService;
         _httpContextAccessor = httpContextAccessor;
+        _balanceService = balanceService;
     }
 
     public async Task<FuturesPosition> OpenPosition(FuturesPositionRequestDto requestDto)
@@ -28,14 +30,18 @@ public class FuturesPositionService : IFuturesPositionService
         if (positionsFromCookie == null)
         {
             positions = new();
+            _balanceService.SetBalance();
         }
         else
         {
             positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie) ?? new List<FuturesPosition>();
             position.Id = positions.Count;
         }
+        // TODO: check if balance >= total price of position
         position.Price = await GetExternalPairPriceAsync();
         position.Total = position.Price * position.Quanity;
+        if (position.Total >= _balanceService.GetBalance()) return null;
+        _balanceService.UpdateBalance(-position.Total);
         positions.Add(position);
         var serializedPositions = JsonConvert.SerializeObject(positions);
         _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
@@ -47,7 +53,15 @@ public class FuturesPositionService : IFuturesPositionService
         var httpContext = _httpContextAccessor.HttpContext;
         var positions = GetPositions();
         var position = positions.Find(i => i.Id == positionId);
-        if (position is not null) positions.Remove(position);
+        if (position is not null)
+        {
+            position.Total = 15000;
+            var balance = _balanceService.UpdateBalance(position.Total);
+            positions.Remove(position);
+            var serializedBalance = JsonConvert.SerializeObject(balance);
+            _cookieService.SetCookie(httpContext, "Balance", serializedBalance, 7);
+
+        }
         var serializedPositions = JsonConvert.SerializeObject(positions);
         _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
         return _mapper.Map<FuturesPositionResponseDto>(position);

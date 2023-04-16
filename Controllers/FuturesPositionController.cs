@@ -25,7 +25,7 @@ public class FuturesPositionController : Controller
         return Ok(position);
     }
 
-    [HttpDelete]
+    [HttpDelete("position/{positionId}")]
     public IActionResult ClosePosition(int positionId)
     {
         var position = _futuresPositionService.ClosePosition(positionId);
@@ -36,7 +36,7 @@ public class FuturesPositionController : Controller
     public IActionResult GetPositions()
     {
         var positions = _futuresPositionService.GetPositions();
-        return positions is not null ? Ok(positions) : BadRequest(ModelState);
+        return positions is not null ? Ok(positions) : NoContent();
     }
 
     [HttpGet("position/{positionId:int}")]
