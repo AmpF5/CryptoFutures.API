@@ -26,9 +26,9 @@ public class FuturesPositionController : Controller
     }
 
     [HttpDelete("position/{positionId}")]
-    public IActionResult ClosePosition(int positionId)
+    public async Task<IActionResult> ClosePosition(int positionId)
     {
-        var position = _futuresPositionService.ClosePosition(positionId);
+        var position = await _futuresPositionService.ClosePosition(positionId);
         return position is not null ? Ok(position) : BadRequest(ModelState);
     }
 
