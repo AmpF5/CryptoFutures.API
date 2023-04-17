@@ -13,5 +13,5 @@ public interface IFuturesPositionService
 
     public FuturesPosition UpdatePositionStopLossOrTakeProfit(int positionId, decimal stopLoss, decimal takeProfit);
 
-    public FuturesPositionResponseDto ClosePosition(int id);
+    public Task<FuturesPositionResponseDto> ClosePosition(int id);
 }

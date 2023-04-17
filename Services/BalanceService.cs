@@ -23,7 +23,6 @@ public class BalanceService : IBalanceService
     public decimal SetBalance()
     {
         var httpContext = _httpContextAccessor.HttpContext;
-
         const decimal balance = 50000;
         var balanceSerialized = JsonConvert.SerializeObject(balance);
         _cookieService.SetCookie(httpContext, "Balance", balanceSerialized, 7);
