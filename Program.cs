@@ -14,6 +14,12 @@ builder.Services.AddScoped<IFuturesPositionService, FuturesPositionService>();
 builder.Services.AddScoped<IBalanceService, BalanceService>();
 builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddCors(options => options.AddPolicy(name: "FuturesPositionOrigins",
+    policy =>
+    {
+        policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+    }));
+
 
 var app = builder.Build();
 
@@ -23,6 +29,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("FuturesPositionOrigins");
 
 app.UseHttpsRedirection();
 
