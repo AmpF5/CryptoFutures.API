@@ -7,7 +7,7 @@ public class CookieService : ICookieService
         CookieOptions option = new();
         if (expireTime.HasValue)
         {
-            option.Expires = DateTime.Now.AddMinutes(expireTime.Value);
+            option.Expires = DateTime.Now.AddDays(expireTime.Value);
         }
         else
         {
