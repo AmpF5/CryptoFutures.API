@@ -30,17 +30,26 @@ public class FuturesPositionService : IFuturesPositionService
         if (positionsFromCookie == null)
         {
             positions = new();
-            _balanceService.SetBalance();
+            //_balanceService.SetBalance();
         }
         else
         {
             positions = JsonConvert.DeserializeObject<List<FuturesPosition>>(positionsFromCookie) ?? new List<FuturesPosition>();
-            position.Id = positions.Count;
+            //position.Id = positions.Count;
+            if(positions.Count == 0)
+            {
+                position.Id = 0;
+            }
+            else
+            {
+                position.Id = positions[positions.Count - 1].Id + 1;
+            }
         }
         // TODO: check if balance >= total price of position
         position.Price = await GetExternalPairPriceAsync();
+        position.Quanity = position.PositionSize / position.Price;
         position.Total = position.Price * position.Quanity;
-        position.PositionSize = position.Quanity * position.Price;
+        ////position.PositionSize = position.Quanity * position.Price;
         if (position.Total >= _balanceService.GetBalance()) return null;
         _balanceService.UpdateBalance(-position.Total);
         positions.Add(position);
@@ -64,7 +73,11 @@ public class FuturesPositionService : IFuturesPositionService
             //_cookieService.SetCookie(httpContext, "Balance", serializedBalance, 7);
 
         }
-        else return null;
+        else
+        {
+            return null;
+        }
+
         var serializedPositions = JsonConvert.SerializeObject(positions);
         _cookieService.SetCookie(httpContext, "FuturesPositions", serializedPositions, 7);
         return _mapper.Map<FuturesPositionResponseDto>(position);
@@ -117,8 +130,7 @@ public class FuturesPositionService : IFuturesPositionService
         {
             balance = balance * position.Leverage * (-1);
         }
-        balance = balance * exitPrice;
-        return balance;
+        return balance * exitPrice;
     }
     public async Task<decimal> GetExternalPairPriceAsync()
     {
