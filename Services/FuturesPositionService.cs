@@ -1,5 +1,6 @@
 using AutoMapper;
 using CryptoFutures.API.Entities;
+using CryptoFutures.API.Enums;
 using CryptoFutures.API.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -46,7 +47,7 @@ public class FuturesPositionService : IFuturesPositionService
             }
         }
         // TODO: check if balance >= total price of position
-        position.Price = await GetExternalPairPriceAsync();
+        position.Price = await GetExternalPairPriceAsync(position.Symbol);
         position.Quanity = position.PositionSize / position.Price;
         position.Total = position.Price * position.Quanity;
         ////position.PositionSize = position.Quanity * position.Price;
@@ -117,9 +118,13 @@ public class FuturesPositionService : IFuturesPositionService
     private async Task<decimal> GetPositionProfit(FuturesPosition position)
     {
         decimal entryPrice = position.Price;
-        decimal exitPrice = await GetExternalPairPriceAsync();
-        exitPrice = 35000;
+        decimal exitPrice = await GetExternalPairPriceAsync(position.Symbol);
+        exitPrice = 30000;
         decimal balance = ((1 / entryPrice) - (1 / exitPrice)) * position.PositionSize;
+        if(balance == 0)
+        {
+            return position.PositionSize;
+        }
         // long position
         if (position.OrderType == Enums.OrderType.Long)
         {
@@ -132,16 +137,18 @@ public class FuturesPositionService : IFuturesPositionService
         }
         return balance * exitPrice;
     }
-    public async Task<decimal> GetExternalPairPriceAsync()
+    public async Task<decimal> GetExternalPairPriceAsync(string symbol)
     {
         using var httpClient = new HttpClient();
-        const string url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
+        Currencies currencies = new();
+        var currencyFullName = currencies.currencies[symbol];
+        string url = "https://api.coingecko.com/api/v3/simple/price?ids="+ currencyFullName + "&vs_currencies=usd";
         var response = await httpClient.GetAsync(url);
         if (response.IsSuccessStatusCode)
         {
             var data = await response.Content.ReadAsStringAsync();
             var jsonObject = JObject.Parse(data);
-            return (decimal)jsonObject["bitcoin"]["usd"];
+            return (decimal)jsonObject[currencyFullName]["usd"];
         }
         else
         {
